@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CreeperXD | Real Connect V1.0</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root { 
+            --p: #00ffa3; 
+            --p-glow: rgba(0, 255, 163, 0.3);
+            --bg: #030406; 
+            --glass: rgba(15, 18, 25, 0.7);
+            --border: rgba(255, 255, 255, 0.08);
+            --text-main: #ffffff;
+            --text-dim: #94a3b8;
+        }
+
+        * { margin:0; padding:0; box-sizing:border-box; font-family:'Outfit', sans-serif; }
+        
+        body { 
+            background: var(--bg); 
+            color: var(--text-main); 
+            min-height: 100vh;
+            overflow-x: hidden;
+            background-image: radial-gradient(circle at 50% -20%, #00ffa21a 0%, var(--bg) 60%);
+        }
+
+        /* --- LOGIN GLASSMORPHISM --- */
+        #gate { 
+            position:fixed; inset:0; 
+            background: #000; 
+            z-index:10000; display:flex; align-items:center; justify-content:center;
+            padding: 20px;
+        }
+        .gate-card { 
+            padding: 50px 35px; 
+            background: var(--glass);
+            backdrop-filter: blur(25px);
+            border: 1px solid var(--border);
+            border-radius: 35px; 
+            text-align: center; 
+            width: 100%;
+            max-width: 400px; 
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+        }
+        .gate-card h1 { 
+            font-weight:800; letter-spacing: -1px; margin-bottom: 30px; 
+            color: var(--p); text-shadow: 0 0 20px var(--p-glow);
+        }
+        .gate-input {
+            width:100%; padding:15px 20px; margin-bottom: 12px; 
+            background: rgba(0, 0, 0, 0.4); 
+            border: 1px solid var(--border); 
+            color:white; border-radius:14px;
+            outline: none; transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .gate-input:focus { border-color: var(--p); box-shadow: 0 0 15px var(--p-glow); }
+        .login-btn { 
+            width:100%; padding:16px; background:var(--p); border:none; border-radius:14px; 
+            font-weight:800; cursor:pointer; margin-top: 15px; transition: 0.3s;
+            color: #000; letter-spacing: 1px;
+        }
+        .login-btn:hover { transform: translateY(-3px); box-shadow: 0 10px 20px var(--p-glow); }
+
+        /* --- MODERN HEADER --- */
+        header { 
+            position: sticky; top: 0; 
+            background: rgba(3, 4, 6, 0.8); 
+            backdrop-filter: blur(15px); 
+            padding: 20px 8%; 
+            border-bottom: 1px solid var(--border); 
+            z-index: 1000;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .logo { font-weight:800; font-size: 1.5rem; }
+        .logo span { color: var(--p); }
+        .status-badge { font-size: 0.75rem; color: var(--text-dim); background: rgba(255,255,255,0.05); padding: 5px 12px; border-radius: 20px; border: 1px solid var(--border); }
+
+        /* --- TAB NAVIGATION --- */
+        .tabs { 
+            display: flex; gap: 10px; 
+            background: rgba(255,255,255,0.03); 
+            padding: 8px; border-radius: 18px; 
+            max-width: 500px; margin: 40px auto;
+            border: 1px solid var(--border);
+        }
+        .tab-btn { 
+            flex:1; padding: 14px; border: none; 
+            color: var(--text-dim); background: transparent;
+            border-radius: 12px; cursor: pointer; font-weight: 600; 
+            transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .tab-btn.active { background: var(--p); color: #000; box-shadow: 0 5px 15px var(--p-glow); }
+
+        /* --- CONTAINER & CARDS --- */
+        .container { 
+            max-width: 1300px; margin: 0 auto;
+            padding: 0 5% 100px; display: none; 
+        }
+        .container.active { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); 
+            gap: 25px; 
+            animation: slideUp 0.6s ease-out forwards;
+        }
+
+        .card { 
+            background: var(--glass); 
+            border: 1px solid var(--border); 
+            padding: 28px; 
+            border-radius: 28px; 
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+        .card:hover { 
+            border-color: var(--p); 
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 20px 40px -20px rgba(0, 255, 163, 0.2);
+        }
+        .card h3 { 
+            color: #fff; margin-bottom: 20px; font-weight: 800; font-size: 1.2rem;
+            display: flex; align-items: center; gap: 10px;
+        }
+        .card h3::before { content: ''; width: 10px; height: 10px; background: var(--p); border-radius: 50%; box-shadow: 0 0 10px var(--p); }
+
+        .info-box { 
+            background: rgba(0,0,0,0.4); padding: 15px; 
+            border-radius: 16px; margin-top: 12px; 
+            display: flex; justify-content: space-between; align-items: center; 
+            border: 1px solid var(--border); 
+        }
+        .info-box code { font-family: 'JetBrains Mono'; color: var(--p); font-size: 0.9rem; }
+        .copy-icon { cursor:pointer; color: var(--text-dim); transition: 0.3s; padding: 5px; }
+        .copy-icon:hover { color:var(--p); transform: scale(1.2); }
+
+        /* --- FLOATING LOGOUT --- */
+        .logout { 
+            position: fixed; bottom: 35px; right: 35px; 
+            background: #ff3e3e; width: 65px; height: 65px; 
+            border-radius: 22px; display: flex; align-items: center; 
+            justify-content: center; cursor: pointer; z-index: 2000; 
+            transition: 0.3s; box-shadow: 0 10px 20px rgba(255, 62, 62, 0.3);
+        }
+        .logout:hover { transform: rotate(90deg) scale(1.1); }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* --- RESPONSIVENESS --- */
+        @media (max-width: 768px) {
+            header { flex-direction: column; gap: 10px; padding: 20px; }
+            .tabs { margin: 20px 5%; width: 90%; }
+            .container.active { grid-template-columns: 1fr; }
+            .logout { width: 55px; height: 55px; bottom: 20px; right: 20px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="gate">
+        <div class="gate-card">
+            <h1>SECURE ACCESS</h1>
+            <input type="text" id="u" class="gate-input" placeholder="Username">
+            <input type="password" id="p" class="gate-input" placeholder="Password">
+            <button onclick="auth()" class="login-btn">LOGIN SYSTEM</button>
+        </div>
+    </div>
+
+    <header id="nav" style="display:none;">
+        <div class="logo">CREEPER<span>HUB</span>V1.0</div>
+        <div class="status-badge">● LIVE DATABASE NODES</div>
+    </header>
+
+    <div class="tabs" id="tab-nav" style="display:none;">
+        <button class="tab-btn active" onclick="show('java', this)">JAVA NODES</button>
+        <button class="tab-btn" onclick="show('bedrock', this)">BEDROCK / PE</button>
+    </div>
+
+    <div id="java" class="container active"></div>
+    <div id="bedrock" class="container"></div>
+
+    <div class="logout" onclick="logout()" id="lg" style="display:none;">
+        <i class="fas fa-power-off"></i>
+    </div>
+
+    <script>
+        // LOGIC PRESERVED - ONLY REAL SERVERS REMAIN
+        const JAVA_DATA = [
+            {n:"Hypixel Network", i:"mc.hypixel.net", po:"25565"},
+            {n:"PikaNetwork", i:"pika.host", po:"25565"},
+            {n:"JartexNetwork", i:"jartex.fun", po:"25565"},
+            {n:"2b2t Anarchy", i:"2b2t.org", po:"25565"},
+            {n:"Herobrine.org", i:"herobrine.org", po:"25565"},
+            {n:"Wynncraft", i:"play.wynncraft.com", po:"25565"},
+            {n:"BlocksMC", i:"blocksmc.com", po:"25565"},
+            {n:"ManaCube", i:"play.manacube.com", po:"25565"},
+            {n:"Complex Gaming", i:"hub.mc-complex.com", po:"25565"},
+            {n:"ViperMC", i:"play.vipermc.net", po:"25565"}
+        ];
+
+        const BEDROCK_DATA = [
+            {n:"The Hive", i:"geo.hivebedrock.network", po:"19132"},
+            {n:"NetherGames", i:"play.nethergames.org", po:"19132"},
+            {n:"CubeCraft", i:"play.cubecraft.net", po:"19132"},
+            {n:"Lifeboat", i:"play.lbsg.net", po:"19132"},
+            {n:"HyperLands", i:"play.hyperlands.net", po:"19132"},
+            {n:"BrokenLens", i:"play.brlns.net", po:"2000"},
+            {n:"Galaxite", i:"play.galaxite.net", po:"19132"},
+            {n:"Mineplex PE", i:"pe.mineplex.com", po:"19132"}
+        ];
+
+        // REMOVED AUTO-GENERATOR LOOP TO KEEP ONLY REAL SERVERS
+
+        function auth() {
+            const u = document.getElementById('u').value;
+            const p = document.getElementById('p').value;
+            if(!u || !p) return;
+            
+            let vault = JSON.parse(localStorage.getItem('DB_VAULT') || "{}");
+            if(vault[u] && vault[u] !== btoa(p)) return alert("Access Denied!");
+            
+            vault[u] = btoa(p);
+            localStorage.setItem('DB_VAULT', JSON.stringify(vault));
+            localStorage.setItem('DB_USER', u);
+            start();
+        }
+
+        function start() {
+            document.getElementById('gate').style.display = 'none';
+            document.getElementById('nav').style.display = 'flex';
+            document.getElementById('tab-nav').style.display = 'flex';
+            document.getElementById('lg').style.display = 'flex';
+            render('java');
+        }
+
+        function render(type) {
+            const cont = document.getElementById(type);
+            const data = (type === 'java') ? JAVA_DATA : BEDROCK_DATA;
+            cont.innerHTML = data.map(s => `
+                <div class="card">
+                    <h3>${s.n}</h3>
+                    <div class="info-box">
+                        <code>IP: ${s.i}</code>
+                        <i class="fas fa-copy copy-icon" onclick="cp('${s.i}')" title="Copy IP"></i>
+                    </div>
+                    <div class="info-box">
+                        <code>PORT: ${s.po}</code>
+                        <i class="fas fa-hashtag copy-icon" onclick="cp('${s.po}')" title="Copy Port"></i>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function show(t, btn) {
+            document.querySelectorAll('.container').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(t).classList.add('active');
+            btn.classList.add('active');
+            render(t);
+        }
+
+        function cp(t) { 
+            navigator.clipboard.writeText(t); 
+            // Better UX than standard alert
+            const notify = document.createElement('div');
+            notify.style = "position:fixed; top:20px; left:50%; transform:translateX(-50%); background:var(--p); color:#000; padding:10px 25px; border-radius:30px; font-weight:bold; z-index:9999; animation: slideUp 0.3s forwards";
+            notify.innerText = "COPIED TO CLIPPBOARD";
+            document.body.appendChild(notify);
+            setTimeout(() => notify.remove(), 2000);
+        }
+
+        function logout() { localStorage.removeItem('DB_USER'); location.reload(); }
+
+        window.onload = () => { if(localStorage.getItem('DB_USER')) start(); };
+    </script>
+</body>
+</html>
