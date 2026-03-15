@@ -2,229 +2,280 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Ultra Craft - V1!</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CreeperXD | Real Connect V1.0</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #87ceeb; position: fixed; touch-action: none; font-family: 'Arial', sans-serif; }
-        canvas { display: block; width: 100%; height: 100%; }
-        #ui { position: absolute; inset: 0; z-index: 10; pointer-events: none; }
-        #ui > * { pointer-events: auto; }
-        #crosshair { position: absolute; top: 50%; left: 50%; width: 20px; height: 20px; border: 2px solid white; transform: translate(-50%, -50%); pointer-events: none; mix-blend-mode: difference; }
+        :root { 
+            --p: #00ffa3; 
+            --p-glow: rgba(0, 255, 163, 0.3);
+            --bg: #030406; 
+            --glass: rgba(15, 18, 25, 0.7);
+            --border: rgba(255, 255, 255, 0.08);
+            --text-main: #ffffff;
+            --text-dim: #94a3b8;
+        }
+
+        * { margin:0; padding:0; box-sizing:border-box; font-family:'Outfit', sans-serif; }
         
-        /* Sensitivity Control */
-        #settings-box { 
-            position: absolute; top: 15px; right: 15px; 
-            background: rgba(0,0,0,0.6); color: white; 
-            padding: 8px 12px; border-radius: 8px; font-size: 12px;
-            display: flex; align-items: center; gap: 10px; border: 1px solid #555;
+        body { 
+            background: var(--bg); 
+            color: var(--text-main); 
+            min-height: 100vh;
+            overflow-x: hidden;
+            background-image: radial-gradient(circle at 50% -20%, #00ffa21a 0%, var(--bg) 60%);
         }
-        #sens-range { cursor: pointer; accent-color: #fff; }
 
-        #hotbar { 
-            position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); 
-            display: flex; background: rgba(141, 141, 141, 0.8); 
-            padding: 4px; border: 4px solid #373737; outline: 2px solid #ffffff;
+        /* --- LOGIN GLASSMORPHISM --- */
+        #gate { 
+            position:fixed; inset:0; 
+            background: #000; 
+            z-index:10000; display:flex; align-items:center; justify-content:center;
+            padding: 20px;
         }
-        .slot { 
-            width: 48px; height: 48px; margin: 2px; 
-            border: 4px solid #373737; background: #8b8b8b;
-            display: flex; align-items: center; justify-content: center;
-            color: white; font-size: 14px; font-weight: bold; text-shadow: 2px 2px #000;
+        .gate-card { 
+            padding: 50px 35px; 
+            background: var(--glass);
+            backdrop-filter: blur(25px);
+            border: 1px solid var(--border);
+            border-radius: 35px; 
+            text-align: center; 
+            width: 100%;
+            max-width: 400px; 
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
         }
-        .slot.active { border-color: #ffffff; background: #9b9b9b; }
+        .gate-card h1 { 
+            font-weight:800; letter-spacing: -1px; margin-bottom: 30px; 
+            color: var(--p); text-shadow: 0 0 20px var(--p-glow);
+        }
+        .gate-input {
+            width:100%; padding:15px 20px; margin-bottom: 12px; 
+            background: rgba(0, 0, 0, 0.4); 
+            border: 1px solid var(--border); 
+            color:white; border-radius:14px;
+            outline: none; transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .gate-input:focus { border-color: var(--p); box-shadow: 0 0 15px var(--p-glow); }
+        .login-btn { 
+            width:100%; padding:16px; background:var(--p); border:none; border-radius:14px; 
+            font-weight:800; cursor:pointer; margin-top: 15px; transition: 0.3s;
+            color: #000; letter-spacing: 1px;
+        }
+        .login-btn:hover { transform: translateY(-3px); box-shadow: 0 10px 20px var(--p-glow); }
 
-        #mobile-root { position: absolute; inset: 0; pointer-events: none; }
-        #mobile-root * { pointer-events: auto; }
-        #joy-base { 
-            position: absolute; bottom: 50px; left: 50px; 
-            width: 120px; height: 120px; background: rgba(255,255,255,0.05); 
-            border: 3px solid rgba(255,255,255,0.2); border-radius: 50%;
+        /* --- MODERN HEADER --- */
+        header { 
+            position: sticky; top: 0; 
+            background: rgba(3, 4, 6, 0.8); 
+            backdrop-filter: blur(15px); 
+            padding: 20px 8%; 
+            border-bottom: 1px solid var(--border); 
+            z-index: 1000;
+            display: flex; justify-content: space-between; align-items: center;
         }
-        #joy-knob { position: absolute; top: 50%; left: 50%; width: 50px; height: 50px; background: rgba(255,255,255,0.3); border-radius: 50%; transform: translate(-50%, -50%); }
-        .action-btns { position: absolute; bottom: 50px; right: 30px; display: flex; flex-direction: column; gap: 15px; }
-        .btn { width: 80px; height: 80px; border-radius: 50%; border: 4px solid rgba(255,255,255,0.6); background: rgba(0,0,0,0.2); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; user-select: none; }
-        #jump-btn { width: 70px; height: 70px; align-self: center; background: rgba(255,255,255,0.1); }
-        #dig-btn { background: rgba(200,0,0,0.4); } #place-btn { background: rgba(0,200,0,0.4); }
+        .logo { font-weight:800; font-size: 1.5rem; }
+        .logo span { color: var(--p); }
+        .status-badge { font-size: 0.75rem; color: var(--text-dim); background: rgba(255,255,255,0.05); padding: 5px 12px; border-radius: 20px; border: 1px solid var(--border); }
+
+        /* --- TAB NAVIGATION --- */
+        .tabs { 
+            display: flex; gap: 10px; 
+            background: rgba(255,255,255,0.03); 
+            padding: 8px; border-radius: 18px; 
+            max-width: 500px; margin: 40px auto;
+            border: 1px solid var(--border);
+        }
+        .tab-btn { 
+            flex:1; padding: 14px; border: none; 
+            color: var(--text-dim); background: transparent;
+            border-radius: 12px; cursor: pointer; font-weight: 600; 
+            transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .tab-btn.active { background: var(--p); color: #000; box-shadow: 0 5px 15px var(--p-glow); }
+
+        /* --- CONTAINER & CARDS --- */
+        .container { 
+            max-width: 1300px; margin: 0 auto;
+            padding: 0 5% 100px; display: none; 
+        }
+        .container.active { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); 
+            gap: 25px; 
+            animation: slideUp 0.6s ease-out forwards;
+        }
+
+        .card { 
+            background: var(--glass); 
+            border: 1px solid var(--border); 
+            padding: 28px; 
+            border-radius: 28px; 
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+        .card:hover { 
+            border-color: var(--p); 
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 20px 40px -20px rgba(0, 255, 163, 0.2);
+        }
+        .card h3 { 
+            color: #fff; margin-bottom: 20px; font-weight: 800; font-size: 1.2rem;
+            display: flex; align-items: center; gap: 10px;
+        }
+        .card h3::before { content: ''; width: 10px; height: 10px; background: var(--p); border-radius: 50%; box-shadow: 0 0 10px var(--p); }
+
+        .info-box { 
+            background: rgba(0,0,0,0.4); padding: 15px; 
+            border-radius: 16px; margin-top: 12px; 
+            display: flex; justify-content: space-between; align-items: center; 
+            border: 1px solid var(--border); 
+        }
+        .info-box code { font-family: 'JetBrains Mono'; color: var(--p); font-size: 0.9rem; }
+        .copy-icon { cursor:pointer; color: var(--text-dim); transition: 0.3s; padding: 5px; }
+        .copy-icon:hover { color:var(--p); transform: scale(1.2); }
+
+        /* --- FLOATING LOGOUT --- */
+        .logout { 
+            position: fixed; bottom: 35px; right: 35px; 
+            background: #ff3e3e; width: 65px; height: 65px; 
+            border-radius: 22px; display: flex; align-items: center; 
+            justify-content: center; cursor: pointer; z-index: 2000; 
+            transition: 0.3s; box-shadow: 0 10px 20px rgba(255, 62, 62, 0.3);
+        }
+        .logout:hover { transform: rotate(90deg) scale(1.1); }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* --- RESPONSIVENESS --- */
+        @media (max-width: 768px) {
+            header { flex-direction: column; gap: 10px; padding: 20px; }
+            .tabs { margin: 20px 5%; width: 90%; }
+            .container.active { grid-template-columns: 1fr; }
+            .logout { width: 55px; height: 55px; bottom: 20px; right: 20px; }
+        }
     </style>
 </head>
 <body>
-    <div id="ui">
-        <div id="crosshair"></div>
-        <div id="settings-box">
-            <span>SENS</span>
-            <input type="range" id="sens-range" min="1" max="100" value="50">
-        </div>
-        <div id="hotbar">
-            <div class="slot active" onclick="updateSlot(0)">1</div>
-            <div class="slot" onclick="updateSlot(1)">2</div>
-            <div class="slot" onclick="updateSlot(2)">3</div>
-            <div class="slot" onclick="updateSlot(3)">4</div>
-        </div>
-        <div id="mobile-root">
-            <div id="joy-base"><div id="joy-knob"></div></div>
-            <div class="action-btns">
-                <div class="btn" id="jump-btn">JUMP</div>
-                <div style="display:flex; gap:10px;">
-                    <div class="btn" id="dig-btn">DIG</div>
-                    <div class="btn" id="place-btn">PLACE</div>
-                </div>
-            </div>
+
+    <div id="gate">
+        <div class="gate-card">
+            <h1>SECURE ACCESS</h1>
+            <input type="text" id="u" class="gate-input" placeholder="Username">
+            <input type="password" id="p" class="gate-input" placeholder="Password">
+            <button onclick="auth()" class="login-btn">LOGIN SYSTEM</button>
         </div>
     </div>
 
-    <script type="importmap"> { "imports": { "three": "https://unpkg.com/three@0.160.0/build/three.module.js" } } </script>
+    <header id="nav" style="display:none;">
+        <div class="logo">CREEPER<span>HUB</span>V1.0</div>
+        <div class="status-badge">● LIVE DATABASE NODES</div>
+    </header>
 
-    <script type="module">
-        import * as THREE from 'three';
+    <div class="tabs" id="tab-nav" style="display:none;">
+        <button class="tab-btn active" onclick="show('java', this)">JAVA NODES</button>
+        <button class="tab-btn" onclick="show('bedrock', this)">BEDROCK / PE</button>
+    </div>
 
-        const scene = new THREE.Scene();
-        scene.background = new THREE.Color(0x87ceeb);
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
-        camera.rotation.order = 'YXZ';
-        const renderer = new THREE.WebGLRenderer({ antialias: false });
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setPixelRatio(1);
-        document.body.appendChild(renderer.domElement);
+    <div id="java" class="container active"></div>
+    <div id="bedrock" class="container"></div>
 
-        scene.add(new THREE.AmbientLight(0xffffff, 0.7));
-        const sun = new THREE.DirectionalLight(0xffffff, 0.8);
-        sun.position.set(10, 20, 10);
-        scene.add(sun);
+    <div class="logout" onclick="logout()" id="lg" style="display:none;">
+        <i class="fas fa-power-off"></i>
+    </div>
 
-        function tex(c1, c2) {
-            const cv = document.createElement('canvas'); cv.width = 16; cv.height = 16;
-            const x = cv.getContext('2d');
-            for(let i=0; i<256; i++) { x.fillStyle = Math.random()>0.5?c1:c2; x.fillRect(i%16, (i/16)|0, 1, 1); }
-            const t = new THREE.CanvasTexture(cv); t.magFilter = THREE.NearestFilter; return t;
-        }
-        const mats = [
-            new THREE.MeshLambertMaterial({map: tex('#5a8e4a','#4e7a40')}),
-            new THREE.MeshLambertMaterial({map: tex('#866043','#6d4e36')}),
-            new THREE.MeshLambertMaterial({map: tex('#7d7d7d','#6a6a6a')}),
-            new THREE.MeshLambertMaterial({map: tex('#6b5232','#544027')})
+    <script>
+        // LOGIC PRESERVED - ONLY REAL SERVERS REMAIN
+        const JAVA_DATA = [
+            {n:"Hypixel Network", i:"mc.hypixel.net", po:"25565"},
+            {n:"PikaNetwork", i:"pika.host", po:"25565"},
+            {n:"JartexNetwork", i:"jartex.fun", po:"25565"},
+            {n:"2b2t Anarchy", i:"2b2t.org", po:"25565"},
+            {n:"Herobrine.org", i:"herobrine.org", po:"25565"},
+            {n:"Wynncraft", i:"play.wynncraft.com", po:"25565"},
+            {n:"BlocksMC", i:"blocksmc.com", po:"25565"},
+            {n:"ManaCube", i:"play.manacube.com", po:"25565"},
+            {n:"Complex Gaming", i:"hub.mc-complex.com", po:"25565"},
+            {n:"ViperMC", i:"play.vipermc.net", po:"25565"}
         ];
 
-        const blocks = [];
-        const boxGeo = new THREE.BoxGeometry(1, 1, 1);
-        const CHUNK = 10;
-        const chunks = new Map();
+        const BEDROCK_DATA = [
+            {n:"The Hive", i:"geo.hivebedrock.network", po:"19132"},
+            {n:"NetherGames", i:"play.nethergames.org", po:"19132"},
+            {n:"CubeCraft", i:"play.cubecraft.net", po:"19132"},
+            {n:"Lifeboat", i:"play.lbsg.net", po:"19132"},
+            {n:"HyperLands", i:"play.hyperlands.net", po:"19132"},
+            {n:"BrokenLens", i:"play.brlns.net", po:"2000"},
+            {n:"Galaxite", i:"play.galaxite.net", po:"19132"},
+            {n:"Mineplex PE", i:"pe.mineplex.com", po:"19132"}
+        ];
 
-        function spawn(cx, cz) {
-            const key = `${cx},${cz}`;
-            if (chunks.has(key)) return;
-            const g = new THREE.Group();
-            for(let x=0; x<CHUNK; x++) {
-                for(let z=0; z<CHUNK; z++) {
-                    const wx = cx*CHUNK + x, wz = cz*CHUNK + z;
-                    const h = Math.floor(Math.sin(wx*0.15)*2 + Math.cos(wz*0.15)*2) + 5;
-                    const b = new THREE.Mesh(boxGeo, mats[0]);
-                    b.position.set(wx, h, wz);
-                    g.add(b); blocks.push(b);
-                    const bed = new THREE.Mesh(boxGeo, mats[2]);
-                    bed.position.set(wx, 0, wz);
-                    g.add(bed); blocks.push(bed);
-                }
-            }
-            scene.add(g); chunks.set(key, g);
+        // REMOVED AUTO-GENERATOR LOOP TO KEEP ONLY REAL SERVERS
+
+        function auth() {
+            const u = document.getElementById('u').value;
+            const p = document.getElementById('p').value;
+            if(!u || !p) return;
+            
+            let vault = JSON.parse(localStorage.getItem('DB_VAULT') || "{}");
+            if(vault[u] && vault[u] !== btoa(p)) return alert("Access Denied!");
+            
+            vault[u] = btoa(p);
+            localStorage.setItem('DB_VAULT', JSON.stringify(vault));
+            localStorage.setItem('DB_USER', u);
+            start();
         }
 
-        // --- LOOK SENSITIVITY ---
-        let baseSens = 0.002;
-        const sensSlider = document.getElementById('sens-range');
-        sensSlider.oninput = () => { baseSens = sensSlider.value * 0.00004; };
-
-        let move = { x: 0, z: 0 }, velY = 0, onGround = false, activeSlot = 0, isPC = false;
-        const keys = {};
-
-        // Look Logic
-        let lastTouch = null;
-        window.addEventListener('touchmove', (e) => {
-            const touch = Array.from(e.touches).find(t => t.clientX > window.innerWidth/2 || t.clientY < window.innerHeight/2);
-            if (!touch) { lastTouch = null; return; }
-            if (lastTouch) {
-                camera.rotation.y -= (touch.clientX - lastTouch.x) * baseSens * 2;
-                camera.rotation.x -= (touch.clientY - lastTouch.y) * baseSens * 2;
-                camera.rotation.x = Math.max(-1.5, Math.min(1.5, camera.rotation.x));
-            }
-            lastTouch = { x: touch.clientX, y: touch.clientY };
-        }, {passive: false});
-
-        window.addEventListener('mousemove', (e) => {
-            if (document.pointerLockElement) {
-                camera.rotation.y -= e.movementX * baseSens;
-                camera.rotation.x -= e.movementY * baseSens;
-                camera.rotation.x = Math.max(-1.5, Math.min(1.5, camera.rotation.x));
-            }
-        });
-
-        // Other Controls
-        window.addEventListener('keydown', (e) => { 
-            if(!isPC) { isPC = true; document.getElementById('mobile-root').style.display = 'none'; document.body.requestPointerLock(); }
-            keys[e.code] = true;
-            if(e.code === 'Space' && onGround) velY = 0.25;
-            if(e.key >= 1 && e.key <= 4) updateSlot(parseInt(e.key)-1);
-        });
-        window.addEventListener('keyup', (e) => keys[e.code] = false);
-        window.addEventListener('mousedown', (e) => { if(isPC) performAction(e.button === 2); });
-
-        const joyKnob = document.getElementById('joy-knob');
-        const joyBase = document.getElementById('joy-base');
-        joyBase.addEventListener('touchmove', (e) => {
-            e.preventDefault();
-            const t = e.touches[0]; const rect = joyBase.getBoundingClientRect();
-            const dx = t.clientX - (rect.left + rect.width/2), dy = t.clientY - (rect.top + rect.height/2);
-            const dist = Math.min(Math.sqrt(dx*dx + dy*dy), 50); const angle = Math.atan2(dy, dx);
-            joyKnob.style.transform = `translate(calc(-50% + ${Math.cos(angle)*dist}px), calc(-50% + ${Math.sin(angle)*dist}px))`;
-            move.x = (Math.cos(angle) * dist) / 50; move.z = (Math.sin(angle) * dist) / 50;
-        }, {passive: false});
-        joyBase.addEventListener('touchend', () => { move.x = 0; move.z = 0; joyKnob.style.transform = 'translate(-50%, -50%)'; });
-
-        document.getElementById('dig-btn').addEventListener('touchstart', (e) => { e.preventDefault(); performAction(false); });
-        document.getElementById('place-btn').addEventListener('touchstart', (e) => { e.preventDefault(); performAction(true); });
-        document.getElementById('jump-btn').addEventListener('touchstart', (e) => { e.preventDefault(); if(onGround) velY = 0.25; });
-
-        const ray = new THREE.Raycaster();
-        function performAction(isPlace) {
-            ray.setFromCamera(new THREE.Vector2(0,0), camera);
-            const hits = ray.intersectObjects(blocks);
-            if(hits.length > 0 && hits[0].distance < 5) {
-                if(isPlace) {
-                    const pos = hits[0].object.position.clone().add(hits[0].face.normal);
-                    const b = new THREE.Mesh(boxGeo, mats[activeSlot]);
-                    b.position.copy(pos); scene.add(b); blocks.push(b);
-                } else {
-                    if(hits[0].object.position.y === 0) return;
-                    scene.remove(hits[0].object); blocks.splice(blocks.indexOf(hits[0].object), 1);
-                }
-            }
+        function start() {
+            document.getElementById('gate').style.display = 'none';
+            document.getElementById('nav').style.display = 'flex';
+            document.getElementById('tab-nav').style.display = 'flex';
+            document.getElementById('lg').style.display = 'flex';
+            render('java');
         }
 
-        window.updateSlot = function(index) {
-            activeSlot = index;
-            document.querySelectorAll('.slot').forEach((s, i) => s.classList.toggle('active', i === index));
-        };
-
-        camera.position.set(0, 10, 0);
-        function loop() {
-            requestAnimationFrame(loop);
-            const cx = Math.floor(camera.position.x / CHUNK), cz = Math.floor(camera.position.z / CHUNK);
-            for(let x=cx-1; x<=cx+1; x++) for(let z=cz-1; z<=cz+1; z++) spawn(x, z);
-            if(isPC) {
-                if(keys['KeyW']) camera.translateZ(-0.15); if(keys['KeyS']) camera.translateZ(0.15);
-                if(keys['KeyA']) camera.translateX(-0.15); if(keys['KeyD']) camera.translateX(0.15);
-            } else {
-                camera.translateX(move.x * 0.15); camera.translateZ(move.z * 0.15);
-            }
-            velY -= 0.018; camera.position.y += velY;
-            const pRay = new THREE.Raycaster(camera.position, new THREE.Vector3(0,-1,0));
-            const ground = pRay.intersectObjects(blocks);
-            if(ground.length > 0 && ground[0].distance < 1.75) {
-                if(velY < 0) { camera.position.y += (1.75 - ground[0].distance); velY = 0; onGround = true; }
-            } else { onGround = false; }
-            renderer.render(scene, camera);
+        function render(type) {
+            const cont = document.getElementById(type);
+            const data = (type === 'java') ? JAVA_DATA : BEDROCK_DATA;
+            cont.innerHTML = data.map(s => `
+                <div class="card">
+                    <h3>${s.n}</h3>
+                    <div class="info-box">
+                        <code>IP: ${s.i}</code>
+                        <i class="fas fa-copy copy-icon" onclick="cp('${s.i}')" title="Copy IP"></i>
+                    </div>
+                    <div class="info-box">
+                        <code>PORT: ${s.po}</code>
+                        <i class="fas fa-hashtag copy-icon" onclick="cp('${s.po}')" title="Copy Port"></i>
+                    </div>
+                </div>
+            `).join('');
         }
-        loop();
-        window.oncontextmenu = (e) => e.preventDefault();
+
+        function show(t, btn) {
+            document.querySelectorAll('.container').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(t).classList.add('active');
+            btn.classList.add('active');
+            render(t);
+        }
+
+        function cp(t) { 
+            navigator.clipboard.writeText(t); 
+            // Better UX than standard alert
+            const notify = document.createElement('div');
+            notify.style = "position:fixed; top:20px; left:50%; transform:translateX(-50%); background:var(--p); color:#000; padding:10px 25px; border-radius:30px; font-weight:bold; z-index:9999; animation: slideUp 0.3s forwards";
+            notify.innerText = "COPIED TO CLIPPBOARD";
+            document.body.appendChild(notify);
+            setTimeout(() => notify.remove(), 2000);
+        }
+
+        function logout() { localStorage.removeItem('DB_USER'); location.reload(); }
+
+        window.onload = () => { if(localStorage.getItem('DB_USER')) start(); };
     </script>
 </body>
 </html>
